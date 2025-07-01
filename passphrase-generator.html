@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passphrase Generator</title>
+    <style>
+        .passphrase-generator {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .generator-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00c97f;
+            box-shadow: 0 0 0 3px rgba(0, 201, 127, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #00c97f;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .separator-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .separator-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .separator-item input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #00c97f;
+        }
+
+        .separator-item label {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .separator-item input[type="radio"]:checked + label {
+            background-color: rgba(0, 201, 127, 0.1);
+            color: #00c97f;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00c97f, #00b36e);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(135deg, #00b36e, #00a65d);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 201, 127, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #00c97f;
+        }
+
+        .passphrase-display {
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e1e5e9;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            word-break: break-all;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #00c97f;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #00b36e;
+        }
+
+        .strength-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .strength-score {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .strength-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .strength-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e5e9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .strength-text {
+            margin-top: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .crack-time {
+            flex: 1;
+            min-width: 150px;
+            text-align: right;
+        }
+
+        .crack-time-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00c97f;
+        }
+
+        .crack-time-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .passphrase-generator {
+                margin: 0 10px;
+                padding: 15px;
+            }
+
+            .generator-title {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .separator-group {
+                justify-content: center;
+            }
+
+            .strength-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .crack-time {
+                text-align: center;
+            }
+
+            .passphrase-display {
+                font-size: 16px;
+                padding-right: 50px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .separator-group {
+                grid-template-columns: repeat(3, 1fr);
+                display: grid;
+                gap: 8px;
+            }
+
+            .separator-item {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="passphrase-generator">
+        <h2 class="generator-title">🔐 Secure Passphrase Generator</h2>
+        
+        <div class="form-group">
+            <label for="wordCount" class="form-label">Number of Words (2-5)</label>
+            <input type="range" id="wordCount" class="form-control" min="2" max="5" value="4">
+            <div style="text-align: center; margin-top: 8px; font-weight: 600; color: #00c97f;">
+                <span id="wordCountDisplay">4</span> words
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Options</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="capitalize" checked>
+                    <label for="capitalize">Capitalize first letter</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="includeNumbers">
+                    <label for="includeNumbers">Include numbers</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Word Separator</label>
+            <div class="separator-group">
+                <div class="separator-item">
+                    <input type="radio" id="sep-dash" name="separator" value="-" checked>
+                    <label for="sep-dash">-</label>
+                </div>
+                <div class="separator-item">
+                    <input type="radio" id="sep-underscore" name="separator" value="_">
+                    <label for="sep-underscore">_</label>
+                </div>
+                <div class="separator-item">
+                    <input type="radio" id="sep-exclamation" name="separator" value="!">
+                    <label for="sep-exclamation">!</label>
+                </div>
+                <div class="separator-item">
+                    <input type="radio" id="sep-question" name="separator" value="?">
+                    <label for="sep-question">?</label>
+                </div>
+                <div class="separator-item">
+                    <input type="radio" id="sep-dollar" name="separator" value="$">
+                    <label for="sep-dollar">$</label>
+                </div>
+                <div class="separator-item">
+                    <input type="radio" id="sep-hash" name="separator" value="#">
+                    <label for="sep-hash">#</label>
+                </div>
+                <div class="separator-item">
+                    <input type="radio" id="sep-at" name="separator" value="@">
+                    <label for="sep-at">@</label>
+                </div>
+                <div class="separator-item">
+                    <input type="radio" id="sep-percent" name="separator" value="%">
+                    <label for="sep-percent">%</label>
+                </div>
+                <div class="separator-item">
+                    <input type="radio" id="sep-caret" name="separator" value="^">
+                    <label for="sep-caret">^</label>
+                </div>
+            </div>
+        </div>
+
+        <button class="generate-btn" onclick="generatePassphrase()">
+            Generate Secure Passphrase
+        </button>
+
+        <div id="resultSection" class="result-section hidden">
+            <div class="passphrase-display" id="passphraseDisplay">
+                <button class="copy-btn" onclick="copyPassphrase()">Copy</button>
+                <span id="passphraseText"></span>
+            </div>
+            
+            <div class="strength-info">
+                <div class="strength-score">
+                    <div class="strength-label">Strength Score</div>
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText"></div>
+                </div>
+                
+                <div class="crack-time">
+                    <div class="crack-time-label">Estimated crack time</div>
+                    <div class="crack-time-value" id="crackTimeValue"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Common English words that are easy to remember
+        const wordList = [
+            'apple', 'beach', 'chair', 'dance', 'eagle', 'flame', 'garden', 'house',
+            'island', 'jungle', 'keeper', 'light', 'music', 'night', 'ocean', 'peace',
+            'queen', 'river', 'storm', 'tower', 'unity', 'voice', 'water', 'youth',
+            'brave', 'cloud', 'dream', 'earth', 'fresh', 'grace', 'happy', 'magic',
+            'noble', 'power', 'quiet', 'shine', 'truth', 'vivid', 'wise', 'zesty',
+            'angel', 'bloom', 'charm', 'faith', 'glory', 'heart', 'lucky', 'merry',
+            'royal', 'smile', 'trust', 'vital', 'wonder', 'bright', 'gentle', 'lovely',
+            'spring', 'summer', 'winter', 'autumn', 'flower', 'forest', 'meadow', 'valley',
+            'mountain', 'sunrise', 'sunset', 'rainbow', 'crystal', 'golden', 'silver', 'bronze',
+            'anchor', 'basket', 'candle', 'dragon', 'energy', 'falcon', 'galaxy', 'harbor',
+            'iceberg', 'journey', 'kitchen', 'ladder', 'mirror', 'nature', 'orange', 'planet',
+            'puzzle', 'rocket', 'shadow', 'temple', 'unique', 'violin', 'whisper', 'wonder',
+            'yellow', 'zipper', 'bacon', 'castle', 'diamond', 'engine', 'friend', 'giant',
+            'hammer', 'income', 'jewel', 'kitten', 'lemon', 'marble', 'needle', 'olive',
+            'pencil', 'quiver', 'robin', 'sugar', 'ticket', 'uncle', 'velvet', 'wagon',
+            'zebra', 'amber', 'butter', 'copper', 'dollar', 'emerald', 'falcon', 'grape',
+            'honey', 'ivory', 'jacket', 'lemon', 'moon', 'ninja', 'onion', 'purple',
+            'quarter', 'rabbit', 'spider', 'turtle', 'universe', 'victory', 'wisdom', 'exotic',
+            'yogurt', 'zombie', 'arctic', 'blossom', 'courage', 'dolphin', 'explorer', 'fossil',
+            'glacier', 'horizon', 'inspire', 'justice', 'kingdom', 'liberty', 'mystery', 'nurture',
+            'oasis', 'phoenix', 'quantum', 'rescue', 'serenity', 'triumph', 'utopia', 'voyager',
+            'warrior', 'xenon', 'yonder', 'zenith', 'adventure', 'balloon', 'champion', 'destiny',
+            'eternal', 'fortune', 'guardian', 'harmony', 'infinite', 'jubilee', 'knight', 'legend',
+            'miracle', 'neptune', 'odyssey', 'paradise', 'quality', 'radiant', 'sovereign', 'thunder',
+            'umbrella', 'venture', 'wanderer', 'xylem', 'yearning', 'zephyr'
+        ];
+
+        // Update word count display
+        document.getElementById('wordCount').addEventListener('input', function() {
+            document.getElementById('wordCountDisplay').textContent = this.value;
+        });
+
+        function generatePassphrase() {
+            const wordCount = parseInt(document.getElementById('wordCount').value);
+            const capitalize = document.getElementById('capitalize').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const separator = document.querySelector('input[name="separator"]:checked').value;
+
+            // Select random words
+            const selectedWords = [];
+            const usedIndices = new Set();
+            
+            while (selectedWords.length < wordCount) {
+                const randomIndex = Math.floor(Math.random() * wordList.length);
+                if (!usedIndices.has(randomIndex)) {
+                    usedIndices.add(randomIndex);
+                    let word = wordList[randomIndex];
+                    
+                    if (capitalize) {
+                        word = word.charAt(0).toUpperCase() + word.slice(1);
+                    }
+                    
+                    selectedWords.push(word);
+                }
+            }
+
+            // Add numbers if requested
+            if (includeNumbers) {
+                const numberPosition = Math.floor(Math.random() * selectedWords.length);
+                const randomNumber = Math.floor(Math.random() * 100);
+                selectedWords[numberPosition] += randomNumber;
+            }
+
+            const passphrase = selectedWords.join(separator);
+            
+            // Display results
+            displayResults(passphrase);
+        }
+
+        function displayResults(passphrase) {
+            document.getElementById('passphraseText').textContent = passphrase;
+            document.getElementById('resultSection').classList.remove('hidden');
+            
+            const strength = calculateStrength(passphrase);
+            updateStrengthDisplay(strength);
+            
+            const crackTime = estimateCrackTime(passphrase);
+            document.getElementById('crackTimeValue').textContent = crackTime;
+        }
+
+        function calculateStrength(passphrase) {
+            let score = 0;
+            let feedback = '';
+            
+            // Length scoring
+            if (passphrase.length >= 20) score += 25;
+            else if (passphrase.length >= 15) score += 20;
+            else if (passphrase.length >= 10) score += 15;
+            else score += 10;
+            
+            // Character variety
+            if (/[a-z]/.test(passphrase)) score += 10;
+            if (/[A-Z]/.test(passphrase)) score += 10;
+            if (/[0-9]/.test(passphrase)) score += 15;
+            if (/[^a-zA-Z0-9]/.test(passphrase)) score += 20;
+            
+            // Complexity bonus
+            const uniqueChars = new Set(passphrase.toLowerCase()).size;
+            if (uniqueChars > 10) score += 20;
+            else if (uniqueChars > 6) score += 10;
+            
+            // Determine strength level
+            if (score >= 85) {
+                feedback = 'Very Strong';
+            } else if (score >= 70) {
+                feedback = 'Strong';
+            } else if (score >= 55) {
+                feedback = 'Good';
+            } else if (score >= 40) {
+                feedback = 'Fair';
+            } else {
+                feedback = 'Weak';
+            }
+            
+            return { score: Math.min(score, 100), feedback };
+        }
+
+        function updateStrengthDisplay(strength) {
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+            
+            strengthFill.style.width = strength.score + '%';
+            strengthText.textContent = strength.feedback;
+            
+            // Color coding
+            if (strength.score >= 85) {
+                strengthFill.style.backgroundColor = '#00c97f';
+                strengthText.style.color = '#00c97f';
+            } else if (strength.score >= 70) {
+                strengthFill.style.backgroundColor = '#28a745';
+                strengthText.style.color = '#28a745';
+            } else if (strength.score >= 55) {
+                strengthFill.style.backgroundColor = '#ffc107';
+                strengthText.style.color = '#ffc107';
+            } else if (strength.score >= 40) {
+                strengthFill.style.backgroundColor = '#fd7e14';
+                strengthText.style.color = '#fd7e14';
+            } else {
+                strengthFill.style.backgroundColor = '#dc3545';
+                strengthText.style.color = '#dc3545';
+            }
+        }
+
+        function estimateCrackTime(passphrase) {
+            // Simplified crack time estimation
+            const charset = getCharsetSize(passphrase);
+            const length = passphrase.length;
+            
+            // Rough estimate: charset^length / 2 / attempts_per_second
+            const combinations = Math.pow(charset, length) / 2;
+            const attemptsPerSecond = 1000000; // 1 million attempts per second
+            const seconds = combinations / attemptsPerSecond;
+            
+            return formatTime(seconds);
+        }
+
+        function getCharsetSize(passphrase) {
+            let size = 0;
+            if (/[a-z]/.test(passphrase)) size += 26;
+            if (/[A-Z]/.test(passphrase)) size += 26;
+            if (/[0-9]/.test(passphrase)) size += 10;
+            if (/[^a-zA-Z0-9]/.test(passphrase)) size += 32; // Common symbols
+            return size;
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) return '< 1 minute';
+            if (seconds < 3600) return Math.round(seconds / 60) + ' minutes';
+            if (seconds < 86400) return Math.round(seconds / 3600) + ' hours';
+            if (seconds < 31536000) return Math.round(seconds / 86400) + ' days';
+            if (seconds < 31536000000) return Math.round(seconds / 31536000) + ' years';
+            return 'Centuries';
+        }
+
+        function copyPassphrase() {
+            const passphraseText = document.getElementById('passphraseText').textContent;
+            navigator.clipboard.writeText(passphraseText).then(function() {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.backgroundColor = '#28a745';
+                
+                setTimeout(function() {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.backgroundColor = '#00c97f';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        // Generate initial passphrase
+        generatePassphrase();
+    </script>
+</body>
+</html>
